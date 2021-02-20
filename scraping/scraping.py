@@ -1,4 +1,7 @@
 import chromedriver_binary
+import numpy as np
+import oseti
+import pandas as pd
 from selenium import webdriver
 from time import sleep
 
@@ -114,7 +117,7 @@ class Scraping(object):
                 assesments = driver.find_elements_by_class_name("des_gdIDUsrImprBox")
                 c += 1
                 i = 4
-            elif c == 1 or c == 2:
+            elif c == 1:
                 next_page = driver.find_element_by_xpath(
                     f'//*[@id="des_inner"]/div[24]/a[3]'
                 )
@@ -124,6 +127,42 @@ class Scraping(object):
                 assesments = driver.find_elements_by_class_name("des_gdIDUsrImprBox")
                 c += 1
                 i = 4
+
+def make_csv():
+    """
+    webスクレイピングの結果にネガポジを足して、データフレームにする
+    csvファイル化
+    """
+    df = pd.DataFrame(
+      {
+        "comment": [comments[0]],
+        "taste": [tastes[0]],
+        "service": [services[0]],
+        "mood": [moods[0]],
+        "cospa": [cospas[0]],
+      }
+    )
+    for (com, tas, ser, moo, cos) in zip(
+        comments[1:], tastes[1:], services[1:], moods[1:], cospas[1:]
+        ):
+        df = df.append(
+            {"comment": com, "taste": tas, "service": ser, "mood": moo, "cospa": cos},
+            ignore_index=True,
+        )
+    df.to_csv("assesment.csv")
+    result_df = df
+    result_comments = []
+    result_comment = result_df["comment"]
+    for result_com in result_comment[0:]:
+        result_comments.append(result_com)
+    analyzer = oseti.Analyzer()
+    result_negaposies = []
+    for result_comment in result_comments:
+        result_negaposi = analyzer.analyze(result_comment)
+        result_average = np.average(result_negaposi)
+        result_negaposies.append(result_average)
+    result_df["negaposi"] = result_negaposies
+    result_df.to_csv("assesment.csv")
 
 if __name__ == "__main__":
     scraping = Scraping('NARISAWA')
@@ -135,3 +174,4 @@ if __name__ == "__main__":
     moods = []
     cospas = []
     scraping.get_item(driver, cur_url)
+    make_csv()
