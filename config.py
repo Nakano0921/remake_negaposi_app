@@ -11,3 +11,7 @@ search_space_xpath = '//*[@id="__layout"]/div/div[2]/div/aside/div[2]/form/div/d
 search_restaurant_button_xpath = '//*[@id="__layout"]/div/div[2]/div/aside/div[2]/form/div/div/button'
 # 検索結果の1番上位の店のxpaht
 search_result_xpath = '//*[@id="__layout"]/div/div[2]/div/main/section/a'
+# 店のトップページの「クチコミ」ボタンのxpath
+comments_button_xpath = '//*[@id="__layout"]/div/div[2]/main/div[1]/nav/div/button[3]'
+# クチコミのclass_name
+comments_class_name = 'reviewText_29v9n'
