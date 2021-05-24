@@ -1,15 +1,15 @@
+import csv
+
 from selenium import webdriver
 from time import sleep
 
 import config
 
-
 driver_path = './chromedriver'
 driver = webdriver.Chrome(executable_path=driver_path)
 
-
 class Scraping(object):
-
+    
     def __init__(self, restaurant):
         self.restaurant = restaurant
 
@@ -52,11 +52,9 @@ class Scraping(object):
         driver.implicitly_wait(3)
         driver.switch_to.window(driver.window_handles[1])
         driver.implicitly_wait(3)
-        restaurant_top_url = driver.current_url
-        return restaurant_top_url
 
     @staticmethod
-    def get_comments(restaurant_top_url):
+    def get_comments():
         """
         店のクチコミボタンを押して、コメントをリスト化
         """
@@ -67,18 +65,32 @@ class Scraping(object):
         elements = driver.find_elements_by_class_name(config.comments_class_name)
         comments = []
         for element in elements:
-            comment = element.text
-            comments.append(comment)
-        # デバッグ用のコード
-        for commmet in comments:
-            print(comment)
-        print(comments)
+            comments.append(element.text)
+        # 確認用のコード
+        # for comment in comments:
+        #     print(comment)
+        # print(comments)
+        return comments
 
-
+class Csv(object):
+    
+    def __init__(self, comment_list):
+        self.comment_list = comment_list
+        
+    def make_csv(self):
+        with open('commens.csv', 'w') as csv_file:
+            fieldnames = ['comment']
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+            for comment in self.comment_list:
+                writer.writerow({'comment': comment})
+    
 
 
 if __name__ == '__main__':
     scraping = Scraping('うしのほね　あなざ')
     restaurant_top_url = scraping.search_restaurant()
-    Scraping.get_comments(restaurant_top_url)
+    comment_list = Scraping.get_comments()
+    about_csv = Csv(comment_list)
+    about_csv.make_csv()
     
